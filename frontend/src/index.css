@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0f172a;
+  --color-surface: rgba(30, 41, 59, 0.7);
+  --color-primary: #3b82f6;
+  --color-primary-200: #bfdbfe;
+  --color-accent: #8b5cf6;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased selection:bg-primary/30 selection:text-primary-200;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-surface backdrop-blur-md border border-white/10 shadow-xl;
+  }
+}
