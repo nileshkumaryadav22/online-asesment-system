@@ -15,7 +15,8 @@ const quizSchema = new mongoose.Schema({
   duration: { type: Number, required: true }, // in minutes
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   questions: [questionSchema],
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  leaderboardPublished: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Quiz', quizSchema);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Clock, Users, FileText, Trash2 } from 'lucide-react';
+import { PlusCircle, Clock, Users, FileText, Trash2, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
@@ -73,6 +73,9 @@ const AdminDashboard = () => {
             <div className="mt-4 flex gap-2">
               <Link to={`/admin/quiz/${quiz._id}/live`} className="flex-1 text-center bg-white/5 hover:bg-white/10 border border-white/10 py-2 rounded-lg transition-colors text-sm">
                 Live Monitor
+              </Link>
+              <Link to={`/admin/quiz/${quiz._id}/leaderboard`} className="p-2 text-yellow-400 hover:bg-yellow-400/10 border border-yellow-400/10 rounded-lg transition-colors" title="Leaderboard">
+                <Trophy size={20} />
               </Link>
               <button 
                 onClick={() => handleDelete(quiz._id)}

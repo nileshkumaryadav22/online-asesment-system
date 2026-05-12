@@ -9,6 +9,7 @@ import QuizCreate from './pages/QuizCreate';
 import QuizAttempt from './pages/QuizAttempt';
 import Result from './pages/Result';
 import LiveMonitor from './pages/LiveMonitor';
+import Leaderboard from './pages/Leaderboard';
 
 function App() {
   return (
@@ -24,12 +25,14 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="quiz/create" element={<QuizCreate />} />
             <Route path="quiz/:id/live" element={<LiveMonitor />} />
+            <Route path="quiz/:id/leaderboard" element={<Leaderboard />} />
           </Route>
 
           {/* Student Routes */}
           <Route path="/student" element={<MainLayout allowedRoles={['student']} />}>
             <Route path="dashboard" element={<StudentDashboard />} />
             <Route path="quiz/:id" element={<QuizAttempt />} />
+            <Route path="quiz/:id/leaderboard" element={<Leaderboard />} />
             <Route path="result/:id" element={<Result />} />
           </Route>
         </Routes>

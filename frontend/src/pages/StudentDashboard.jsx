@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Play, Clock, FileText } from 'lucide-react';
+import { Play, Clock, FileText, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const StudentDashboard = () => {
@@ -53,13 +53,22 @@ const StudentDashboard = () => {
                 </div>
               </div>
               
-              <Link 
-                to={`/student/quiz/${quiz._id}`} 
-                className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 rounded-lg transition-colors"
-              >
-                <Play size={18} />
-                Start Attempt
-              </Link>
+              <div className="flex gap-2">
+                <Link 
+                  to={`/student/quiz/${quiz._id}`} 
+                  className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium py-2 rounded-lg transition-colors"
+                >
+                  <Play size={18} />
+                  Start
+                </Link>
+                <Link 
+                  to={`/student/quiz/${quiz._id}/leaderboard`} 
+                  className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-2 px-3 rounded-lg transition-colors"
+                  title="View Leaderboard"
+                >
+                  <Trophy size={18} className="text-yellow-400" />
+                </Link>
+              </div>
             </div>
           </motion.div>
         ))}
