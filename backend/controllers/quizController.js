@@ -55,3 +55,20 @@ exports.getAdminQuizzes = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    
+    // Check if user is the creator
+    if (quiz.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized to delete this quiz' });
+    }
+
+    await Quiz.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Quiz removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

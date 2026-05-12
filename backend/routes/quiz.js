@@ -1,5 +1,5 @@
 const express = require('express');
-const { createQuiz, getQuizzes, getQuizById, getAdminQuizzes } = require('../controllers/quizController');
+const { createQuiz, getQuizzes, getQuizById, getAdminQuizzes, deleteQuiz } = require('../controllers/quizController');
 const { protect, admin } = require('../middleware/auth');
 const router = express.Router();
 
@@ -8,6 +8,8 @@ router.route('/')
   .get(protect, getQuizzes);
 
 router.get('/admin', protect, admin, getAdminQuizzes);
-router.get('/:id', protect, getQuizById);
+router.route('/:id')
+  .get(protect, getQuizById)
+  .delete(protect, admin, deleteQuiz);
 
 module.exports = router;
