@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { Trophy, ArrowLeft, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Leaderboard = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
