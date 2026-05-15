@@ -20,7 +20,7 @@ const MainLayout = ({ allowedRoles }) => {
       <aside className="w-full md:w-64 glass md:h-screen sticky top-0 flex flex-col">
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <img src="/src/assets/logo.png" alt="Exam System Logo" className="w-8 h-8 object-contain" />
+            <img src="/logo.png" alt="Exam System Logo" className="w-8 h-8 object-contain" />
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
               Exam System
             </h1>
