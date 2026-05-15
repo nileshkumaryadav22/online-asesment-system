@@ -19,9 +19,12 @@ const MainLayout = ({ allowedRoles }) => {
       {/* Sidebar */}
       <aside className="w-full md:w-64 glass md:h-screen sticky top-0 flex flex-col">
         <div className="p-6">
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            AstraLMS
-          </h1>
+          <div className="flex items-center gap-3">
+            <img src="/src/assets/logo.png" alt="Exam System Logo" className="w-8 h-8 object-contain" />
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+              Exam System
+            </h1>
+          </div>
           <p className="text-sm text-gray-400 mt-1 capitalize">{user.role} Panel</p>
         </div>
         <nav className="flex-1 px-4 space-y-2">
