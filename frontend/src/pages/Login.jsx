@@ -63,7 +63,7 @@ const Login = () => {
             <Sparkles className="text-white w-8 h-8" />
           </motion.div>
           <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-primary-200 to-white tracking-tight">
-            AstraLMS
+            Exam System
           </h1>
           <p className="text-gray-400 mt-3 font-medium">Welcome back! Please sign in.</p>
         </div>

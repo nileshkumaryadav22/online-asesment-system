@@ -33,7 +33,7 @@ const Register = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            Join AstraLMS
+            Join Exam System
           </h1>
           <p className="text-gray-400 mt-2">Create your account</p>
         </div>
