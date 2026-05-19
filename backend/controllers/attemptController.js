@@ -54,12 +54,38 @@ exports.submitAttempt = async (req, res) => {
       } else if (ans.type === 'descriptive') {
         marksObtained = evaluateDescriptiveAnswer(ans.textResponse, question.keywords, question.marks);
       } else if (ans.type === 'coding') {
+        const runtime = pistonRuntimes[question.language] || pistonRuntimes.javascript;
+        
         if (!question.testCases || question.testCases.length === 0) {
-          marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
+          // No test cases, but let's do a syntax check via Piston API!
+          try {
+            const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                language: runtime.language,
+                version: runtime.version,
+                files: [{ name: `main.${question.language}`, content: ans.codeResponse || '' }],
+                stdin: ''
+              })
+            });
+            const data = await res.json();
+            const compileFailed = data.compile && data.compile.code !== 0;
+            const isRuntimeCrash = data.run && data.run.signal; // e.g. SIGKILL, SIGSEGV
+            
+            if (compileFailed) {
+              marksObtained = 0; // Syntax error = 0 marks
+            } else {
+              // Compiled successfully, fallback to keyword evaluation
+              marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
+            }
+          } catch (err) {
+            console.error('Piston Syntax Check Error:', err);
+            marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
+          }
         } else {
+          // Evaluate against test cases
           let passedCases = 0;
-          const runtime = pistonRuntimes[question.language] || pistonRuntimes.javascript;
-          
           for (const tc of question.testCases) {
             try {
               const res = await fetch('https://emkc.org/api/v2/piston/execute', {
@@ -73,7 +99,7 @@ exports.submitAttempt = async (req, res) => {
                 })
               });
               const data = await res.json();
-              if (data.run && data.run.stdout) {
+              if (data.run && data.run.stdout !== undefined) {
                 const actualOutput = data.run.stdout.trim();
                 if (actualOutput === tc.expectedOutput.trim()) {
                   passedCases++;
