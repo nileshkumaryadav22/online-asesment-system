@@ -1,5 +1,11 @@
 exports.evaluateDescriptiveAnswer = (answerText, keywords, maxMarks) => {
-  if (!answerText || !keywords || keywords.length === 0) return 0;
+  if (!answerText) return 0;
+  
+  // If the teacher didn't provide any keywords to check against, 
+  // we award full marks if the student wrote a reasonable amount of code/text (> 10 chars).
+  if (!keywords || keywords.length === 0) {
+    return answerText.trim().length > 10 ? maxMarks : 0;
+  }
   
   const text = answerText.toLowerCase();
   let matchedCount = 0;
