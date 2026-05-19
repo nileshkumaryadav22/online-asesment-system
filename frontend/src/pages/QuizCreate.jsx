@@ -14,8 +14,10 @@ const QuizCreate = () => {
   const addQuestion = (type) => {
     if (type === 'mcq') {
       setQuestions([...questions, { type: 'mcq', text: '', options: ['', '', '', ''], correctOption: 0, marks: 1 }]);
-    } else {
+    } else if (type === 'descriptive') {
       setQuestions([...questions, { type: 'descriptive', text: '', keywords: [''], marks: 5 }]);
+    } else if (type === 'coding') {
+      setQuestions([...questions, { type: 'coding', text: '', language: 'javascript', initialCode: '', marks: 10 }]);
     }
   };
 
@@ -76,12 +78,15 @@ const QuizCreate = () => {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <button type="button" onClick={() => addQuestion('mcq')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors">
             <Plus size={18} /> Add MCQ
           </button>
           <button type="button" onClick={() => addQuestion('descriptive')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors">
             <Plus size={18} /> Add Descriptive (AI Checked)
+          </button>
+          <button type="button" onClick={() => addQuestion('coding')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors">
+            <Plus size={18} /> Add Coding
           </button>
         </div>
 
@@ -122,6 +127,24 @@ const QuizCreate = () => {
                       <label className="block text-sm text-gray-300 mb-1">AI Evaluation Keywords (comma separated)</label>
                       <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" placeholder="e.g. inheritance, polymorphism, encapsulation" value={q.keywords.join(', ')} onChange={e => handleKeywordChange(qIndex, e.target.value)} required />
                       <p className="text-xs text-gray-400 mt-1">These keywords will be used to automatically grade the student's answer.</p>
+                    </div>
+                  )}
+
+                  {q.type === 'coding' && (
+                    <div className="space-y-4 mt-4">
+                      <div>
+                        <label className="block text-sm text-gray-300 mb-1">Language</label>
+                        <select className="w-full max-w-[200px] bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" value={q.language} onChange={e => handleQuestionChange(qIndex, 'language', e.target.value)}>
+                          <option value="javascript" className="bg-gray-800">JavaScript</option>
+                          <option value="python" className="bg-gray-800">Python</option>
+                          <option value="java" className="bg-gray-800">Java</option>
+                          <option value="cpp" className="bg-gray-800">C++</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-300 mb-1">Initial Code / Boilerplate</label>
+                        <textarea className="w-full font-mono bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" rows="4" placeholder="function solution() {\n  \n}" value={q.initialCode} onChange={e => handleQuestionChange(qIndex, 'initialCode', e.target.value)} />
+                      </div>
                     </div>
                   )}
                 </div>

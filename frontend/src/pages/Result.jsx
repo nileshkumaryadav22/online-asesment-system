@@ -101,6 +101,17 @@ const Result = () => {
                   </div>
                 </div>
               )}
+
+              {q.type === 'coding' && (
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">Your Code Response ({q.language}):</div>
+                    <pre className="p-4 bg-[#1e1e1e] border border-white/10 rounded-lg text-gray-300 font-mono overflow-x-auto">
+                      {ans?.codeResponse || <span className="italic text-gray-500">No code provided</span>}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

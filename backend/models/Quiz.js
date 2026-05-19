@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
-  type: { type: String, enum: ['mcq', 'descriptive'], required: true },
+  type: { type: String, enum: ['mcq', 'descriptive', 'coding'], required: true },
   text: { type: String, required: true },
   options: [{ type: String }], // For MCQ
   correctOption: { type: Number }, // Index of correct option for MCQ
   keywords: [{ type: String }], // For Descriptive AI Evaluation
+  language: { type: String }, // For Coding (e.g., 'javascript', 'python', 'cpp')
+  initialCode: { type: String }, // For Coding
   marks: { type: Number, required: true, default: 1 }
 });
 

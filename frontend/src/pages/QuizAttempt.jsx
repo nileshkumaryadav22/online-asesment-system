@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import api from '../services/api';
 import { socket } from '../services/socket';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -15,6 +15,9 @@ const QuizAttempt = () => {
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [warnings, setWarnings] = useState(0);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const initAttempt = async () => {
@@ -31,7 +34,8 @@ const QuizAttempt = () => {
             questionId: q._id,
             type: q.type,
             selectedOption: null,
-            textResponse: ''
+            textResponse: '',
+            codeResponse: q.initialCode || ''
           }));
           setAnswers(initialAnswers);
         } else {
@@ -54,6 +58,19 @@ const QuizAttempt = () => {
         socket.connect();
         socket.emit('join_assessment', { quizId: id, studentName: user.name });
 
+        // Start Webcam
+        const startWebcam = async () => {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+          } catch (err) {
+            console.error("Error accessing webcam:", err);
+          }
+        };
+        startWebcam();
+
       } catch (error) {
         console.error(error);
         alert('Failed to load assessment');
@@ -67,6 +84,9 @@ const QuizAttempt = () => {
     
     return () => {
       socket.disconnect();
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
     };
   }, [id]);
 
@@ -84,6 +104,14 @@ const QuizAttempt = () => {
         // Emit timer update every 5 seconds to reduce socket load
         if (prev % 5 === 0) {
           socket.emit('timer_update', { quizId: id, studentName: user.name, timeLeft: prev - 1 });
+          
+          // Capture and send webcam frame
+          if (videoRef.current && canvasRef.current) {
+            const context = canvasRef.current.getContext('2d');
+            context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+            const frame = canvasRef.current.toDataURL('image/jpeg', 0.5);
+            socket.emit('student_webcam_frame', { quizId: id, studentName: user.name, frame });
+          }
         }
         
         return prev - 1;
@@ -92,6 +120,28 @@ const QuizAttempt = () => {
 
     return () => clearInterval(timer);
   }, [timeLeft, id, user.name, answers]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setWarnings(prev => {
+          const newWarnings = prev + 1;
+          alert(`Warning: You have switched tabs! (${newWarnings}/3 warnings before auto-submit)`);
+          socket.emit('student_tab_switch', { quizId: id, studentName: user.name, warnings: newWarnings });
+          
+          if (newWarnings >= 3) {
+            submitQuiz(answers);
+          }
+          return newWarnings;
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [id, user.name, answers]);
 
   const handleAnswerChange = (qIndex, field, value) => {
     const newAnswers = [...answers];
@@ -149,8 +199,23 @@ const QuizAttempt = () => {
             )}
 
             {q.type === 'descriptive' && (
-              <div>
+              <div className="mt-4">
                 <textarea className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary" rows="4" placeholder="Type your answer here..." value={answers[qIndex]?.textResponse || ''} onChange={(e) => handleAnswerChange(qIndex, 'textResponse', e.target.value)} />
+              </div>
+            )}
+
+            {q.type === 'coding' && (
+              <div className="mt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-400">Language: {q.language}</span>
+                </div>
+                <textarea 
+                  className="w-full font-mono bg-[#1e1e1e] border border-white/10 rounded-lg px-4 py-3 text-gray-300 focus:outline-none focus:border-primary" 
+                  rows="8" 
+                  spellCheck="false"
+                  value={answers[qIndex]?.codeResponse || ''} 
+                  onChange={(e) => handleAnswerChange(qIndex, 'codeResponse', e.target.value)} 
+                />
               </div>
             )}
           </motion.div>
@@ -161,6 +226,18 @@ const QuizAttempt = () => {
         <button onClick={() => submitQuiz(answers)} className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-xl transition-colors shadow-lg shadow-primary/20">
           Submit Assessment
         </button>
+      </div>
+
+      {/* Hidden canvas for webcam frame capture */}
+      <canvas ref={canvasRef} width="320" height="240" style={{ display: 'none' }}></canvas>
+      
+      {/* Floating Webcam View */}
+      <div className="fixed bottom-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden border border-white/10 shadow-xl z-50">
+        <video ref={videoRef} autoPlay muted className="w-full h-full object-cover"></video>
+        <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-black/50 px-2 py-1 rounded text-xs text-white">
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+          Monitoring
+        </div>
       </div>
     </div>
   );

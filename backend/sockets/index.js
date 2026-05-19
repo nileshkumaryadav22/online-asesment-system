@@ -18,6 +18,14 @@ module.exports = (io) => {
       io.to(quizId).emit('student_submitted', { studentName, time: new Date() });
     });
 
+    socket.on('student_webcam_frame', ({ quizId, studentName, frame }) => {
+      io.to(quizId).emit('student_webcam_update', { studentName, frame });
+    });
+
+    socket.on('student_tab_switch', ({ quizId, studentName, warnings }) => {
+      io.to(quizId).emit('student_tab_switch_alert', { studentName, warnings, time: new Date() });
+    });
+
     socket.on('disconnect', () => {
       console.log(`Socket disconnected: ${socket.id}`);
     });

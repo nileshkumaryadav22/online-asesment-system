@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 
 const answerSchema = new mongoose.Schema({
   questionId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  type: { type: String, enum: ['mcq', 'descriptive'], required: true },
+  type: { type: String, enum: ['mcq', 'descriptive', 'coding'], required: true },
   selectedOption: { type: Number }, // For MCQ
   textResponse: { type: String }, // For Descriptive
+  codeResponse: { type: String }, // For Coding
   marksObtained: { type: Number, default: 0 },
   evaluated: { type: Boolean, default: false }
 });
