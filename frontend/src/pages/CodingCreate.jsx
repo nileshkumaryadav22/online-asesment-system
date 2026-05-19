@@ -12,7 +12,7 @@ const CodingCreate = () => {
   const navigate = useNavigate();
 
   const addQuestion = () => {
-    setQuestions([...questions, { type: 'coding', text: '', language: 'javascript', initialCode: '', marks: 10 }]);
+    setQuestions([...questions, { type: 'coding', text: '', language: 'javascript', initialCode: '', keywords: [], marks: 10 }]);
   };
 
   const removeQuestion = (index) => {
@@ -24,6 +24,12 @@ const CodingCreate = () => {
   const handleQuestionChange = (index, field, value) => {
     const newQs = [...questions];
     newQs[index][field] = value;
+    setQuestions(newQs);
+  };
+
+  const handleKeywordChange = (qIndex, value) => {
+    const newQs = [...questions];
+    newQs[qIndex].keywords = value.split(',').map(k => k.trim()).filter(k => k);
     setQuestions(newQs);
   };
 
@@ -88,6 +94,11 @@ const CodingCreate = () => {
                   </div>
 
                   <div className="space-y-4 mt-4">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-1">AI Evaluation Keywords (comma separated)</label>
+                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" placeholder="e.g. for, if, return, ArrayList" value={(q.keywords || []).join(', ')} onChange={e => handleKeywordChange(qIndex, e.target.value)} required />
+                      <p className="text-xs text-gray-400 mt-1">These keywords will be used to automatically grade the student's code logic.</p>
+                    </div>
                     <div>
                       <label className="block text-sm text-gray-300 mb-1">Language</label>
                       <select className="w-full max-w-[200px] bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" value={q.language} onChange={e => handleQuestionChange(qIndex, 'language', e.target.value)}>

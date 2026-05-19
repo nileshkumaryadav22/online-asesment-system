@@ -106,8 +106,11 @@ const QuizAttempt = () => {
           socket.emit('timer_update', { quizId: id, studentName: user.name, timeLeft: prev - 1 });
           
           // Capture and send webcam frame
-          if (videoRef.current && canvasRef.current) {
+          if (videoRef.current && canvasRef.current && videoRef.current.readyState >= 2) {
             const context = canvasRef.current.getContext('2d');
+            // Ensure canvas dimensions match video
+            canvasRef.current.width = videoRef.current.videoWidth || 320;
+            canvasRef.current.height = videoRef.current.videoHeight || 240;
             context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
             const frame = canvasRef.current.toDataURL('image/jpeg', 0.5);
             socket.emit('student_webcam_frame', { quizId: id, studentName: user.name, frame });
@@ -233,7 +236,7 @@ const QuizAttempt = () => {
       
       {/* Floating Webcam View */}
       <div className="fixed bottom-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden border border-white/10 shadow-xl z-50">
-        <video ref={videoRef} autoPlay muted className="w-full h-full object-cover"></video>
+        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover"></video>
         <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-black/50 px-2 py-1 rounded text-xs text-white">
           <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
           Monitoring

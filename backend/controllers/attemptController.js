@@ -46,6 +46,8 @@ exports.submitAttempt = async (req, res) => {
         }
       } else if (ans.type === 'descriptive') {
         marksObtained = evaluateDescriptiveAnswer(ans.textResponse, question.keywords, question.marks);
+      } else if (ans.type === 'coding') {
+        marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
       }
 
       totalMarks += marksObtained;

@@ -14,35 +14,35 @@ const LiveMonitor = () => {
     socket.on('student_joined', ({ studentName, time }) => {
       setStudents(prev => ({
         ...prev,
-        [studentName]: { status: 'active', timeJoined: time, timeLeft: '...', warnings: 0, frame: null }
+        [studentName]: { ...(prev[studentName] || {}), status: 'active', timeJoined: time, timeLeft: '...', warnings: 0, frame: null }
       }));
     });
 
     socket.on('student_timer_update', ({ studentName, timeLeft }) => {
       setStudents(prev => ({
         ...prev,
-        [studentName]: { ...prev[studentName], timeLeft }
+        [studentName]: { status: 'active', warnings: 0, frame: null, ...(prev[studentName] || {}), timeLeft }
       }));
     });
 
     socket.on('student_submitted', ({ studentName, time }) => {
       setStudents(prev => ({
         ...prev,
-        [studentName]: { ...prev[studentName], status: 'submitted' }
+        [studentName]: { status: 'submitted', warnings: 0, frame: null, ...(prev[studentName] || {}), status: 'submitted' }
       }));
     });
 
     socket.on('student_webcam_update', ({ studentName, frame }) => {
       setStudents(prev => ({
         ...prev,
-        [studentName]: { ...prev[studentName], frame }
+        [studentName]: { status: 'active', warnings: 0, ...(prev[studentName] || {}), frame }
       }));
     });
 
     socket.on('student_tab_switch_alert', ({ studentName, warnings }) => {
       setStudents(prev => ({
         ...prev,
-        [studentName]: { ...prev[studentName], warnings }
+        [studentName]: { status: 'active', frame: null, ...(prev[studentName] || {}), warnings }
       }));
     });
 
