@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import QuizCreate from './pages/QuizCreate';
+import CodingCreate from './pages/CodingCreate';
 import QuizAttempt from './pages/QuizAttempt';
 import Result from './pages/Result';
 import LiveMonitor from './pages/LiveMonitor';
@@ -24,6 +25,7 @@ function App() {
           <Route path="/admin" element={<MainLayout allowedRoles={['admin']} />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="quiz/create" element={<QuizCreate />} />
+            <Route path="coding/create" element={<CodingCreate />} />
             <Route path="quiz/:id/live" element={<LiveMonitor />} />
             <Route path="quiz/:id/leaderboard" element={<Leaderboard />} />
           </Route>

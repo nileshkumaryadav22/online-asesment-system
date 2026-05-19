@@ -36,6 +36,9 @@ const MainLayout = ({ allowedRoles }) => {
               <Link to="/admin/quiz/create" className="block px-4 py-2 rounded-lg hover:bg-white/5 transition-colors">
                 Create Quiz
               </Link>
+              <Link to="/admin/coding/create" className="block px-4 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                Create Coding Problem
+              </Link>
             </>
           )}
         </nav>

@@ -85,9 +85,6 @@ const QuizCreate = () => {
           <button type="button" onClick={() => addQuestion('descriptive')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors">
             <Plus size={18} /> Add Descriptive (AI Checked)
           </button>
-          <button type="button" onClick={() => addQuestion('coding')} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors">
-            <Plus size={18} /> Add Coding
-          </button>
         </div>
 
         <div className="space-y-6">
