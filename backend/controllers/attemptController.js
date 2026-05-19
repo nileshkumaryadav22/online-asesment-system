@@ -36,11 +36,11 @@ exports.submitAttempt = async (req, res) => {
     const quiz = await Quiz.findById(attempt.quizId);
     let totalMarks = 0;
 
-    const pistonRuntimes = {
-      javascript: { language: 'javascript', version: '18.15.0' },
-      python: { language: 'python', version: '3.10.0' },
-      java: { language: 'java', version: '15.0.2' },
-      cpp: { language: 'c++', version: '10.2.0' }
+    const wandboxCompilers = {
+      javascript: 'nodejs-20.17.0',
+      python: 'cpython-3.14.0',
+      java: 'openjdk-jdk-22+36',
+      cpp: 'gcc-13.2.0'
     };
 
     const evaluatedAnswers = await Promise.all(answers.map(async (ans) => {
@@ -54,33 +54,31 @@ exports.submitAttempt = async (req, res) => {
       } else if (ans.type === 'descriptive') {
         marksObtained = evaluateDescriptiveAnswer(ans.textResponse, question.keywords, question.marks);
       } else if (ans.type === 'coding') {
-        const runtime = pistonRuntimes[question.language] || pistonRuntimes.javascript;
+        const compiler = wandboxCompilers[question.language] || wandboxCompilers.javascript;
         
         if (!question.testCases || question.testCases.length === 0) {
-          // No test cases, but let's do a syntax check via Piston API!
+          // No test cases, but let's do a syntax check via Wandbox API!
           try {
-            const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+            const res = await fetch('https://wandbox.org/api/compile.json', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                language: runtime.language,
-                version: runtime.version,
-                files: [{ name: `main.${question.language}`, content: ans.codeResponse || '' }],
+                compiler: compiler,
+                code: ans.codeResponse || '',
                 stdin: ''
               })
             });
             const data = await res.json();
-            const compileFailed = data.compile && data.compile.code !== 0;
-            const isRuntimeCrash = data.run && data.run.signal; // e.g. SIGKILL, SIGSEGV
             
-            if (compileFailed) {
+            // Wandbox returns status "0" for success, anything else (like "1") is an error
+            if (data.status !== '0') {
               marksObtained = 0; // Syntax error = 0 marks
             } else {
               // Compiled successfully, fallback to keyword evaluation
               marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
             }
           } catch (err) {
-            console.error('Piston Syntax Check Error:', err);
+            console.error('Wandbox Syntax Check Error:', err);
             marksObtained = evaluateDescriptiveAnswer(ans.codeResponse, question.keywords || [], question.marks);
           }
         } else {
@@ -88,25 +86,24 @@ exports.submitAttempt = async (req, res) => {
           let passedCases = 0;
           for (const tc of question.testCases) {
             try {
-              const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+              const res = await fetch('https://wandbox.org/api/compile.json', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  language: runtime.language,
-                  version: runtime.version,
-                  files: [{ name: `main.${question.language}`, content: ans.codeResponse || '' }],
+                  compiler: compiler,
+                  code: ans.codeResponse || '',
                   stdin: tc.input || ''
                 })
               });
               const data = await res.json();
-              if (data.run && data.run.stdout !== undefined) {
-                const actualOutput = data.run.stdout.trim();
+              if (data.status === '0' && data.program_output !== undefined) {
+                const actualOutput = data.program_output.trim();
                 if (actualOutput === tc.expectedOutput.trim()) {
                   passedCases++;
                 }
               }
             } catch (err) {
-              console.error('Piston Execution Error:', err);
+              console.error('Wandbox Execution Error:', err);
             }
           }
           marksObtained = (passedCases / question.testCases.length) * question.marks;
