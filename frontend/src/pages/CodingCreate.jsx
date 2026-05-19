@@ -12,7 +12,7 @@ const CodingCreate = () => {
   const navigate = useNavigate();
 
   const addQuestion = () => {
-    setQuestions([...questions, { type: 'coding', text: '', language: 'javascript', initialCode: '', keywords: [], marks: 10 }]);
+    setQuestions([...questions, { type: 'coding', text: '', language: 'javascript', initialCode: '', testCases: [{ input: '', expectedOutput: '' }], marks: 10 }]);
   };
 
   const removeQuestion = (index) => {
@@ -27,9 +27,21 @@ const CodingCreate = () => {
     setQuestions(newQs);
   };
 
-  const handleKeywordChange = (qIndex, value) => {
+  const handleTestCaseChange = (qIndex, tcIndex, field, value) => {
     const newQs = [...questions];
-    newQs[qIndex].keywords = value.split(',').map(k => k.trim()).filter(k => k);
+    newQs[qIndex].testCases[tcIndex][field] = value;
+    setQuestions(newQs);
+  };
+
+  const addTestCase = (qIndex) => {
+    const newQs = [...questions];
+    newQs[qIndex].testCases.push({ input: '', expectedOutput: '' });
+    setQuestions(newQs);
+  };
+
+  const removeTestCase = (qIndex, tcIndex) => {
+    const newQs = [...questions];
+    newQs[qIndex].testCases.splice(tcIndex, 1);
     setQuestions(newQs);
   };
 
@@ -95,9 +107,28 @@ const CodingCreate = () => {
 
                   <div className="space-y-4 mt-4">
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">AI Evaluation Keywords (comma separated)</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary" placeholder="e.g. for, if, return, ArrayList" value={(q.keywords || []).join(', ')} onChange={e => handleKeywordChange(qIndex, e.target.value)} required />
-                      <p className="text-xs text-gray-400 mt-1">These keywords will be used to automatically grade the student's code logic.</p>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm text-gray-300">Test Cases (for Execution Engine)</label>
+                        <button type="button" onClick={() => addTestCase(qIndex)} className="text-xs bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors">
+                          + Add Test Case
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {(q.testCases || []).map((tc, tcIndex) => (
+                          <div key={tcIndex} className="flex gap-2 items-start bg-white/5 p-3 rounded-lg border border-white/10 relative">
+                            <div className="flex-1 space-y-2">
+                              <input type="text" placeholder="Input (e.g. 12 45 30)" className="w-full bg-white/5 border border-white/10 rounded px-3 py-1 text-sm text-white focus:border-primary" value={tc.input} onChange={e => handleTestCaseChange(qIndex, tcIndex, 'input', e.target.value)} />
+                              <input type="text" placeholder="Expected Output (e.g. Largest Number = 45)" className="w-full bg-white/5 border border-white/10 rounded px-3 py-1 text-sm text-white focus:border-primary" value={tc.expectedOutput} onChange={e => handleTestCaseChange(qIndex, tcIndex, 'expectedOutput', e.target.value)} required />
+                            </div>
+                            {q.testCases.length > 1 && (
+                              <button type="button" onClick={() => removeTestCase(qIndex, tcIndex)} className="text-red-400 hover:text-red-300 p-1">
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">Student code will be executed and graded based on these precise outputs.</p>
                     </div>
                     <div>
                       <label className="block text-sm text-gray-300 mb-1">Language</label>

@@ -8,6 +8,7 @@ const questionSchema = new mongoose.Schema({
   keywords: [{ type: String }], // For Descriptive AI Evaluation
   language: { type: String }, // For Coding (e.g., 'javascript', 'python', 'cpp')
   initialCode: { type: String }, // For Coding
+  testCases: [{ input: String, expectedOutput: String }], // For true execution grading
   marks: { type: Number, required: true, default: 1 }
 });
 

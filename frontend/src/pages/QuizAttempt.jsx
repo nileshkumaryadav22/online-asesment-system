@@ -162,6 +162,9 @@ const QuizAttempt = () => {
 
   const submitQuiz = async (finalAnswers) => {
     try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
       await api.post(`/attempts/${attemptId}/submit`, { answers: finalAnswers });
       socket.emit('submit_assessment', { quizId: id, studentName: user.name });
       navigate(`/student/result/${attemptId}`);
