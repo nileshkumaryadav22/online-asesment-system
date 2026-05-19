@@ -18,6 +18,7 @@ const QuizAttempt = () => {
   const [warnings, setWarnings] = useState(0);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     const initAttempt = async () => {
@@ -62,6 +63,7 @@ const QuizAttempt = () => {
         const startWebcam = async () => {
           try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            streamRef.current = stream;
             if (videoRef.current) {
               videoRef.current.srcObject = stream;
             }
@@ -84,8 +86,8 @@ const QuizAttempt = () => {
     
     return () => {
       socket.disconnect();
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, [id]);
@@ -125,24 +127,30 @@ const QuizAttempt = () => {
   }, [timeLeft, id, user.name, answers]);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setWarnings(prev => {
-          const newWarnings = prev + 1;
-          alert(`Warning: You have switched tabs! (${newWarnings}/3 warnings before auto-submit)`);
-          socket.emit('student_tab_switch', { quizId: id, studentName: user.name, warnings: newWarnings });
-          
-          if (newWarnings >= 3) {
-            submitQuiz(answers);
-          }
-          return newWarnings;
-        });
-      }
+    const handleFocusLoss = () => {
+      // Allow a tiny delay in case it's a false alarm (e.g., closing an alert)
+      setTimeout(() => {
+        if (document.hidden || !document.hasFocus()) {
+          setWarnings(prev => {
+            const newWarnings = prev + 1;
+            alert(`Warning: You have switched tabs or lost focus! (${newWarnings}/3 warnings before auto-submit)`);
+            socket.emit('student_tab_switch', { quizId: id, studentName: user.name, warnings: newWarnings });
+            
+            if (newWarnings >= 3) {
+              submitQuiz(answers);
+            }
+            return newWarnings;
+          });
+        }
+      }, 200);
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleFocusLoss);
+    window.addEventListener("blur", handleFocusLoss);
+    
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleFocusLoss);
+      window.removeEventListener("blur", handleFocusLoss);
     };
   }, [id, user.name, answers]);
 

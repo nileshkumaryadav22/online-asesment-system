@@ -9,7 +9,7 @@ const LiveMonitor = () => {
 
   useEffect(() => {
     socket.connect();
-    socket.emit('join_assessment', { quizId: id, studentName: 'Admin_Monitor' });
+    socket.emit('admin_join_assessment', { quizId: id });
 
     socket.on('student_joined', ({ studentName, time }) => {
       setStudents(prev => ({

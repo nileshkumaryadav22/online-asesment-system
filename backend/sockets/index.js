@@ -9,6 +9,11 @@ module.exports = (io) => {
       console.log(`${studentName} joined assessment ${quizId}`);
     });
 
+    socket.on('admin_join_assessment', ({ quizId }) => {
+      socket.join(quizId);
+      console.log(`Admin joined assessment ${quizId}`);
+    });
+
     // Sync timer / progress
     socket.on('timer_update', ({ quizId, studentName, timeLeft }) => {
       io.to(quizId).emit('student_timer_update', { studentName, timeLeft });
